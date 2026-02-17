@@ -135,7 +135,7 @@ export default function NewCampaign() {
     <div style={s.page}>
 
       <button style={s.back} onClick={() => navigate(-1)}>
-        {'<- Back'}
+        Back
       </button>
 
       <h1 style={{ fontFamily:'var(--font-head)', fontSize:28, fontWeight:800, letterSpacing:'-1px', marginBottom:8 }}>
