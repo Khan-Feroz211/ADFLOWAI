@@ -31,13 +31,17 @@ class CampaignManager:
     
     def __init__(self, db_session: Optional[Session] = None):
         """
-        Initialize Campaign Manager
-        
-        Args:
-            db_session: Database session (optional)
+        Initialize Campaign Manager.
+        db_session is resolved lazily so it works inside Flask app context.
         """
-        self.db = db_session or get_db_session()
+        self._db_session = db_session
         self.ai_optimizer = AIOptimizer()
+
+    @property
+    def db(self):
+        if self._db_session is None:
+            self._db_session = get_db_session()
+        return self._db_session
         
         # Try to load pre-trained models
         try:
