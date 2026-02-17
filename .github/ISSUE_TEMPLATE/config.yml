@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Support Policy
+    url: https://github.com/Khan-Feroz211/ADFLOWAI/blob/main/docs/SLA_SUPPORT.md
+    about: Review response windows and enhancement workflow.

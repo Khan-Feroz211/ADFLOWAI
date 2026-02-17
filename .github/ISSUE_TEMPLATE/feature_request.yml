@@ -1,0 +1,32 @@
+name: Feature Request
+description: Request an enhancement with clear business value.
+title: "[FEATURE] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: business_goal
+    attributes:
+      label: Business Goal
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance Criteria
+      description: List measurable conditions for done.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and Constraints
+      description: What must be included/excluded?
+    validations:
+      required: true
+  - type: input
+    id: release_target
+    attributes:
+      label: Target Release
+      placeholder: v1.1.0
+    validations:
+      required: false
