@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { campaignAPI } from '../services/api';
 
 const platforms = [
-  { id:'google_ads', name:'Google Ads',   icon:'G', color:'#4285f4' },
-  { id:'facebook',   name:'Facebook Ads', icon:'f', color:'#1877f2' },
-  { id:'instagram',  name:'Instagram',    icon:'◈', color:'#e1306c' },
+  { id:'google_ads', name:'Google Ads',   icon:'G',  color:'#4285f4' },
+  { id:'facebook',   name:'Facebook Ads', icon:'f',  color:'#1877f2' },
+  { id:'instagram',  name:'Instagram',    icon:'IG', color:'#e1306c' },
   { id:'linkedin',   name:'LinkedIn Ads', icon:'in', color:'#0a66c2' },
-  { id:'twitter',    name:'Twitter Ads',  icon:'✕', color:'#1da1f2' },
-  { id:'tiktok',     name:'TikTok Ads',   icon:'♪', color:'#ff0050' },
+  { id:'twitter',    name:'Twitter Ads',  icon:'X',  color:'#1da1f2' },
+  { id:'tiktok',     name:'TikTok Ads',   icon:'TT', color:'#ff0050' },
 ];
 
 const objectives = ['conversions','traffic','awareness','leads','engagement','sales'];
@@ -55,6 +55,24 @@ const s = {
   },
   error: { background:'rgba(255,69,96,0.1)', border:'1px solid rgba(255,69,96,0.3)', borderRadius:8, padding:'10px 14px', fontSize:13, color:'var(--red)', marginBottom:16 },
 };
+
+function CampaignField({ label, type='text', placeholder, required, value, onChange, onFocus, onBlur }) {
+  return (
+    <div style={{ marginBottom:16 }}>
+      <label style={s.label}>{label}{required && ' *'}</label>
+      <input
+        style={s.input}
+        type={type}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        onFocus={onFocus}
+        onBlur={onBlur}
+        required={required}
+      />
+    </div>
+  );
+}
 
 export default function NewCampaign() {
   const navigate = useNavigate();
@@ -113,41 +131,28 @@ export default function NewCampaign() {
   const focusBorder = (e) => e.target.style.borderColor = 'var(--accent)';
   const blurBorder  = (e) => e.target.style.borderColor = 'var(--border)';
 
-  const Field = ({ label, name, type='text', placeholder, required }) => (
-    <div style={{ marginBottom:16 }}>
-      <label style={s.label}>{label}{required && ' *'}</label>
-      <input
-        style={s.input} type={type} value={form[name]}
-        onChange={set(name)} placeholder={placeholder}
-        onFocus={focusBorder} onBlur={blurBorder}
-        required={required}
-      />
-    </div>
-  );
-
   return (
     <div style={s.page}>
 
       <button style={s.back} onClick={() => navigate(-1)}>
-        ← Back
+        {'<- Back'}
       </button>
 
       <h1 style={{ fontFamily:'var(--font-head)', fontSize:28, fontWeight:800, letterSpacing:'-1px', marginBottom:8 }}>
         New Campaign
       </h1>
       <p style={{ color:'var(--text3)', fontSize:13, marginBottom:28 }}>
-        Fill in the details — AI will optimize automatically once live.
+        Fill in the details - AI will optimize automatically once live.
       </p>
 
-      {error && <div style={s.error}>⚠ {error}</div>}
+      {error && <div style={s.error}>! {error}</div>}
 
       <form onSubmit={handleSubmit}>
 
-        {/* ── Basic Info ─────────────────────────────── */}
         <div style={s.card}>
-          <div style={s.sectionTitle}>01 — Basic Info</div>
-          <Field label="Campaign Name" name="name" placeholder="e.g. Summer Sale 2026" required />
-          <Field label="Description"   name="description" placeholder="What is this campaign about?" />
+          <div style={s.sectionTitle}>01 - Basic Info</div>
+          <CampaignField label="Campaign Name" value={form.name} onChange={set('name')} placeholder="e.g. Summer Sale 2026" required onFocus={focusBorder} onBlur={blurBorder} />
+          <CampaignField label="Description" value={form.description} onChange={set('description')} placeholder="What is this campaign about?" onFocus={focusBorder} onBlur={blurBorder} />
 
           <div style={s.row}>
             <div>
@@ -178,9 +183,8 @@ export default function NewCampaign() {
           </div>
         </div>
 
-        {/* ── Platforms ──────────────────────────────── */}
         <div style={s.card}>
-          <div style={s.sectionTitle}>02 — Platforms * (select one or more)</div>
+          <div style={s.sectionTitle}>02 - Platforms * (select one or more)</div>
           <div style={s.platformGrid}>
             {platforms.map(p => (
               <button
@@ -191,14 +195,14 @@ export default function NewCampaign() {
                 <div style={s.platformIcon(p.color)}>{p.icon}</div>
                 <span style={{ fontSize:11 }}>{p.name}</span>
                 {form.platforms.includes(p.id) && (
-                  <span style={{ fontSize:10, fontFamily:'var(--font-mono)', color:p.color }}>✓ selected</span>
+                  <span style={{ fontSize:10, fontFamily:'var(--font-mono)', color:p.color }}>selected</span>
                 )}
               </button>
             ))}
           </div>
           {form.platforms.length > 0 && form.total_budget && (
             <div style={{ marginTop:16, padding:'10px 14px', background:'var(--bg3)', borderRadius:8 }}>
-              <span style={{ fontSize:11, fontFamily:'var(--font-mono)', color:'var(--text3)', letterSpacing:1 }}>BUDGET SPLIT (AUTO) — </span>
+              <span style={{ fontSize:11, fontFamily:'var(--font-mono)', color:'var(--text3)', letterSpacing:1 }}>BUDGET SPLIT (AUTO) - </span>
               {form.platforms.map(pid => {
                 const pl = platforms.find(p=>p.id===pid);
                 const share = (parseFloat(form.total_budget||0)/form.platforms.length).toFixed(0);
@@ -212,18 +216,16 @@ export default function NewCampaign() {
           )}
         </div>
 
-        {/* ── Schedule ───────────────────────────────── */}
         <div style={s.card}>
-          <div style={s.sectionTitle}>03 — Schedule</div>
+          <div style={s.sectionTitle}>03 - Schedule</div>
           <div style={s.row}>
-            <Field label="Start Date *" name="start_date" type="date" required />
-            <Field label="End Date (optional)" name="end_date" type="date" />
+            <CampaignField label="Start Date" type="date" required value={form.start_date} onChange={set('start_date')} onFocus={focusBorder} onBlur={blurBorder} />
+            <CampaignField label="End Date (optional)" type="date" value={form.end_date} onChange={set('end_date')} onFocus={focusBorder} onBlur={blurBorder} />
           </div>
         </div>
 
-        {/* ── Audience ───────────────────────────────── */}
         <div style={s.card}>
-          <div style={s.sectionTitle}>04 — Target Audience</div>
+          <div style={s.sectionTitle}>04 - Target Audience</div>
           <div style={{ marginBottom:16 }}>
             <label style={s.label}>Locations (comma separated)</label>
             <input style={s.input} value={form.target_audience.locations}
@@ -246,9 +248,8 @@ export default function NewCampaign() {
           </div>
         </div>
 
-        {/* ── Submit ─────────────────────────────────── */}
         <button type="submit" style={s.submitBtn} disabled={loading}>
-          {loading ? 'Creating Campaign...' : '⚡ Create Campaign & Start AI Optimization'}
+          {loading ? 'Creating Campaign...' : 'Create Campaign & Start AI Optimization'}
         </button>
 
         <p style={{ fontSize:11, color:'var(--text3)', textAlign:'center', marginTop:12, fontFamily:'var(--font-mono)' }}>

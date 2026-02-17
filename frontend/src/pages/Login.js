@@ -48,6 +48,23 @@ const s = {
   success: { background: 'rgba(0,232,143,0.1)', border: '1px solid rgba(0,232,143,0.3)', borderRadius: 8, padding: '10px 14px', fontSize: 13, color: 'var(--green)', marginBottom: 16 },
 };
 
+function LoginInput({ label, type = 'text', placeholder, value, onChange }) {
+  return (
+    <div>
+      <label style={s.label}>{label}</label>
+      <input
+        style={s.input}
+        type={type}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        onFocus={e => e.target.style.borderColor='var(--accent)'}
+        onBlur={e => e.target.style.borderColor='var(--border)'}
+      />
+    </div>
+  );
+}
+
 export default function Login() {
   const navigate = useNavigate();
   const [tab, setTab] = useState('login');
@@ -86,18 +103,6 @@ export default function Login() {
     } finally { setLoading(false); }
   };
 
-  const Input = ({ label, name, type='text', placeholder }) => (
-    <div>
-      <label style={s.label}>{label}</label>
-      <input
-        style={s.input} type={type} value={form[name]}
-        onChange={set(name)} placeholder={placeholder}
-        onFocus={e => e.target.style.borderColor='var(--accent)'}
-        onBlur={e => e.target.style.borderColor='var(--border)'}
-      />
-    </div>
-  );
-
   return (
     <div style={s.page}>
       <div style={s.card}>
@@ -109,26 +114,26 @@ export default function Login() {
           <button style={s.tab(tab==='register')} onClick={() => { setTab('register'); setError(''); }}>Register</button>
         </div>
 
-        {error && <div style={s.error}>⚠ {error}</div>}
-        {success && <div style={s.success}>✓ {success}</div>}
+        {error && <div style={s.error}>! {error}</div>}
+        {success && <div style={s.success}>OK {success}</div>}
 
         {tab === 'login' ? (
           <form onSubmit={handleLogin}>
-            <Input label="Username or Email" name="username" placeholder="your username" />
-            <Input label="Password" name="password" type="password" placeholder="••••••••" />
+            <LoginInput label="Username or Email" value={form.username} onChange={set('username')} placeholder="your username" />
+            <LoginInput label="Password" value={form.password} onChange={set('password')} type="password" placeholder="********" />
             <button style={s.btn} type="submit" disabled={loading}>
-              {loading ? 'Signing in...' : 'Sign In →'}
+              {loading ? 'Signing in...' : 'Sign In ->'}
             </button>
           </form>
         ) : (
           <form onSubmit={handleRegister}>
-            <Input label="Username" name="username" placeholder="john_doe" />
-            <Input label="Email" name="email" type="email" placeholder="john@company.com" />
-            <Input label="Password" name="password" type="password" placeholder="Min 8 chars, uppercase + number" />
-            <Input label="Full Name (optional)" name="full_name" placeholder="John Doe" />
-            <Input label="Company (optional)" name="company" placeholder="Acme Inc." />
+            <LoginInput label="Username" value={form.username} onChange={set('username')} placeholder="john_doe" />
+            <LoginInput label="Email" value={form.email} onChange={set('email')} type="email" placeholder="john@company.com" />
+            <LoginInput label="Password" value={form.password} onChange={set('password')} type="password" placeholder="Min 8 chars, uppercase + number" />
+            <LoginInput label="Full Name (optional)" value={form.full_name} onChange={set('full_name')} placeholder="John Doe" />
+            <LoginInput label="Company (optional)" value={form.company} onChange={set('company')} placeholder="Acme Inc." />
             <button style={s.btn} type="submit" disabled={loading}>
-              {loading ? 'Creating account...' : 'Create Account →'}
+              {loading ? 'Creating account...' : 'Create Account ->'}
             </button>
           </form>
         )}
