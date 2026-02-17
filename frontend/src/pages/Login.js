@@ -58,8 +58,8 @@ function LoginInput({ label, type = 'text', placeholder, value, onChange }) {
         value={value}
         onChange={onChange}
         placeholder={placeholder}
-        onFocus={e => e.target.style.borderColor='var(--accent)'}
-        onBlur={e => e.target.style.borderColor='var(--border)'}
+        onFocus={e => e.target.style.borderColor = 'var(--accent)'}
+        onBlur={e => e.target.style.borderColor = 'var(--border)'}
       />
     </div>
   );
@@ -68,7 +68,7 @@ function LoginInput({ label, type = 'text', placeholder, value, onChange }) {
 export default function Login() {
   const navigate = useNavigate();
   const [tab, setTab] = useState('login');
-  const [form, setForm] = useState({ username:'', email:'', password:'', full_name:'', company:'' });
+  const [form, setForm] = useState({ username: '', email: '', password: '', full_name: '', company: '' });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
@@ -77,7 +77,8 @@ export default function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError(''); setLoading(true);
+    setError('');
+    setLoading(true);
     try {
       const res = await authAPI.login({ username: form.username, password: form.password });
       localStorage.setItem('access_token', res.data.tokens.access_token);
@@ -86,12 +87,15 @@ export default function Login() {
       navigate('/');
     } catch (err) {
       setError(err.response?.data?.error || 'Login failed');
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    setError(''); setLoading(true);
+    setError('');
+    setLoading(true);
     try {
       const res = await authAPI.register(form);
       localStorage.setItem('access_token', res.data.tokens.access_token);
@@ -100,18 +104,20 @@ export default function Login() {
       navigate('/');
     } catch (err) {
       setError(err.response?.data?.error || 'Registration failed');
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div style={s.page}>
       <div style={s.card}>
-        <div style={s.logo}>ADFLOW<span style={{color:'var(--text2)'}}>AI</span></div>
+        <div style={s.logo}>ADFLOW<span style={{ color: 'var(--text2)' }}>AI</span></div>
         <div style={s.tagline}>AI-POWERED CAMPAIGN OPTIMIZER</div>
 
         <div style={s.tabs}>
-          <button style={s.tab(tab==='login')} onClick={() => { setTab('login'); setError(''); }}>Sign In</button>
-          <button style={s.tab(tab==='register')} onClick={() => { setTab('register'); setError(''); }}>Register</button>
+          <button style={s.tab(tab === 'login')} onClick={() => { setTab('login'); setError(''); }}>Sign In</button>
+          <button style={s.tab(tab === 'register')} onClick={() => { setTab('register'); setError(''); }}>Register</button>
         </div>
 
         {error && <div style={s.error}>! {error}</div>}

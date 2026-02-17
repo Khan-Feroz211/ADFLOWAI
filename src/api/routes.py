@@ -11,6 +11,8 @@ import logging
 from src.core.campaign_manager import CampaignManager
 from src.core.database import get_db_session
 from src.auth.auth_routes import auth_bp
+from src.admin.admin_routes import admin_bp
+from src.reports.report_routes import reports_bp
 
 logger = logging.getLogger(__name__)
 
@@ -20,8 +22,10 @@ api_v1 = Blueprint('api_v1', __name__, url_prefix='/api/v1')
 
 def register_blueprints(app):
     """Register all API blueprints"""
-    app.register_blueprint(auth_bp)  # Authentication routes
-    app.register_blueprint(api_v1)   # Main API routes
+    app.register_blueprint(auth_bp)    # Authentication
+    app.register_blueprint(admin_bp)   # Admin panel
+    app.register_blueprint(reports_bp) # Reports/exports
+    app.register_blueprint(api_v1)     # Main API
     logger.info("API blueprints registered")
 
 

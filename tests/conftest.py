@@ -1,64 +1,57 @@
-# ADFLOWAI - Pytest Configuration
-
+"""
+ADFLOWAI - Test Configuration
+Shared fixtures for all tests
+"""
 import pytest
-import sys
 import os
 
-# Add project root to path
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from app import create_app
-from src.core.database import db
-from src.models.campaign import Base
-from config.settings import TestingConfig
+# Force SQLite for all tests - no Postgres needed
+os.environ.setdefault('DATABASE_URL', 'sqlite:///:memory:')
+os.environ.setdefault('SECRET_KEY', 'test-secret-key')
+os.environ.setdefault('JWT_SECRET_KEY', 'test-jwt-secret')
+os.environ.setdefault('REDIS_URL', 'redis://localhost:6379/0')
 
 
 @pytest.fixture(scope='session')
 def app():
-    """Create application for testing"""
-    app = create_app(TestingConfig)
-    
-    # Create tables
-    with app.app_context():
-        db.create_tables()
-    
-    yield app
-    
-    # Cleanup
-    with app.app_context():
-        db.drop_tables()
+    """Create a test Flask app with SQLite in-memory database."""
+    from config.settings import TestingConfig
+    from app import create_app
+
+    TestingConfig.SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+    test_app = create_app(TestingConfig)
+    test_app.config['TESTING'] = True
+    test_app.config['WTF_CSRF_ENABLED'] = False
+
+    with test_app.app_context():
+        yield test_app
 
 
 @pytest.fixture(scope='function')
 def client(app):
-    """Create test client"""
+    """Test client - fresh per test function."""
     return app.test_client()
 
 
 @pytest.fixture(scope='function')
-def db_session(app):
-    """Create database session for testing"""
-    with app.app_context():
-        session = db.get_session()
-        yield session
-        session.rollback()
-        session.close()
-
-
-@pytest.fixture(scope='function')
 def auth_headers(client):
-    """Get authentication headers"""
-    # Register and login test user
-    register_data = {
-        'username': 'testuser',
-        'email': 'test@test.com',
-        'password': 'TestPass123!'
-    }
-    
-    response = client.post('/api/v1/auth/register', json=register_data)
-    tokens = response.get_json()['tokens']
-    
+    """
+    Register a test user and return auth headers.
+    Uses a unique username per test to avoid conflicts.
+    """
+    import uuid
+    unique = uuid.uuid4().hex[:8]
+
+    reg = client.post('/api/v1/auth/register', json={
+        'username': f'testuser_{unique}',
+        'email':    f'test_{unique}@adflowai.com',
+        'password': 'TestPass123!',
+    })
+
+    assert reg.status_code == 201, f"Registration failed: {reg.get_json()}"
+    token = reg.get_json()['tokens']['access_token']
+
     return {
-        'Authorization': f"Bearer {tokens['access_token']}",
-        'Content-Type': 'application/json'
+        'Authorization':  f'Bearer {token}',
+        'Content-Type':   'application/json',
     }

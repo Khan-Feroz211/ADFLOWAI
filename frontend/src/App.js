@@ -4,6 +4,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Campaigns from './pages/Campaigns';
 import NewCampaign from './pages/NewCampaign';
+import AdminPanel from './pages/Admin/AdminPanel';
 import Layout from './components/Layout';
 
 // Global CSS reset + theme
@@ -56,6 +57,7 @@ export default function App() {
           <Route index element={<Dashboard />} />
           <Route path="campaigns" element={<Campaigns />} />
           <Route path="campaigns/new" element={<NewCampaign />} />
+          <Route path="admin" element={<AdminPanel />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

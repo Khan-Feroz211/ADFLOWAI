@@ -39,9 +39,29 @@ const navItems = [
   { to: '/campaigns', icon: '◈', label: 'Campaigns' },
 ];
 
+const adminNavItems = [
+  { to: '/admin', icon: '⚙', label: 'Admin Panel' },
+];
+
 export default function Layout() {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+  const downloadReport = async (fmt) => {
+    try {
+      const token = localStorage.getItem('access_token');
+      const res = await fetch(`/api/v1/reports/campaigns?format=${fmt}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const blob = await res.blob();
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = `adflowai_report.${fmt}`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {}
+  };
 
   const logout = async () => {
     try { await authAPI.logout(); } catch {}
@@ -68,12 +88,34 @@ export default function Layout() {
         </nav>
 
         <span style={s.section}>Quick Actions</span>
-        <nav style={{ padding: '0 12px' }}>
+        <nav style={{ padding: '0 12px', display:'flex', flexDirection:'column', gap:4 }}>
           <NavLink to="/campaigns/new" style={({ isActive }) => s.link(isActive)}>
             <span style={{ fontSize: 16 }}>＋</span>
             New Campaign
           </NavLink>
+          <button onClick={() => downloadReport('csv')} style={{ ...s.link(false), border:'none', cursor:'pointer', width:'100%', textAlign:'left' }}>
+            <span style={{ fontSize: 14 }}>↓</span>
+            Export CSV
+          </button>
+          <button onClick={() => downloadReport('html')} style={{ ...s.link(false), border:'none', cursor:'pointer', width:'100%', textAlign:'left' }}>
+            <span style={{ fontSize: 14 }}>↓</span>
+            Export Report
+          </button>
         </nav>
+
+        {user.role === 'admin' && (
+          <>
+            <span style={s.section}>Admin</span>
+            <nav style={{ padding: '0 12px' }}>
+              {adminNavItems.map(({ to, icon, label }) => (
+                <NavLink key={to} to={to} style={({ isActive }) => s.link(isActive)}>
+                  <span style={{ fontSize: 16 }}>{icon}</span>
+                  {label}
+                </NavLink>
+              ))}
+            </nav>
+          </>
+        )}
 
         <div style={s.bottom}>
           <div style={s.user}>
