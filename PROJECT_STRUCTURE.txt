@@ -1,0 +1,148 @@
+﻿Folder PATH listing
+Volume serial number is 2E76-C3C2
+C:\USERS\FEROZ KHAN\DOWNLOADS\ADFLOWAI-VSCODE
+|   .env
+|   .gitignore
+|   app.py
+|   BUILD_GUIDE.md
+|   COMPONENTS.md
+|   DEPLOYMENT.md
+|   docker-compose.yml
+|   Dockerfile
+|   FIXES_COMPLETE.md
+|   GITHUB_SETUP.md
+|   LICENSE
+|   PITCH_DECK.md
+|   PITCH_GUIDE.md
+|   Procfile
+|   PROJECT_STRUCTURE.txt
+|   PUSH_TO_GITHUB.md
+|   push_to_github.ps1
+|   pytest.ini
+|   railway.json
+|   README.md
+|   requirements-dev.txt
+|   requirements-fixed.txt
+|   requirements.txt
+|   ROADMAP.md
+|   SETUP.ps1
+|   start.bat
+|   START_HERE.md
+|   STATUS.ps1
+|   STOP.ps1
+|   UPDATE.ps1
+|   WHATS_NEW.md
+|   
++---.github
+|   \---workflows
+|           ci.yml
+|           
++---config
+|       settings.py
+|       __init__.py
+|       
++---deploy
+|       DEPLOY_RAILWAY.md
+|       FREE_HOSTING.md
+|       
++---docs
+|       ARCHITECTURE.md
+|       DIAGRAMS.md
+|       
++---examples
+|       demo.py
+|       
++---frontend
+|   |   package.json
+|   |   
+|   +---public
+|   |       index.html
+|   |       
+|   \---src
+|       |   App.js
+|       |   index.js
+|       |   
+|       +---components
+|       |       Layout.js
+|       |       
+|       +---pages
+|       |   |   Campaigns.js
+|       |   |   Dashboard.js
+|       |   |   Login.js
+|       |   |   NewCampaign.js
+|       |   |   
+|       |   \---Admin
+|       |           AdminPanel.js
+|       |           
+|       \---services
+|               api.js
+|               
++---logs
++---scripts
+|       init_db.py
+|       push_to_github.sh
+|       quick_start.sh
+|       
++---src
+|   |   __init__.py
+|   |   
+|   +---admin
+|   |       admin_manager.py
+|   |       admin_routes.py
+|   |       __init__.py
+|   |       
+|   +---api
+|   |       routes.py
+|   |       __init__.py
+|   |       
+|   +---auth
+|   |       auth_manager.py
+|   |       auth_routes.py
+|   |       __init__.py
+|   |       
+|   +---core
+|   |       campaign_manager.py
+|   |       database.py
+|   |       realtime_monitor.py
+|   |       __init__.py
+|   |       
+|   +---integrations
+|   |       __init__.py
+|   |       
+|   +---ml
+|   |       advanced_predictor.py
+|   |       optimizer.py
+|   |       __init__.py
+|   |       
+|   +---models
+|   |       campaign.py
+|   |       __init__.py
+|   |       
+|   +---reports
+|   |       report_generator.py
+|   |       report_routes.py
+|   |       __init__.py
+|   |       
+|   +---tasks
+|   |       celery_app.py
+|   |       __init__.py
+|   |       
+|   \---utils
+|           __init__.py
+|           
++---tests
+|   |   conftest.py
+|   |   __init__.py
+|   |   
+|   +---integration
+|   |       test_full_flow.py
+|   |       __init__.py
+|   |       
+|   \---unit
+|           test_admin.py
+|           test_auth.py
+|           test_campaign_manager.py
+|           test_reports.py
+|           __init__.py
+|           
+\---uploads
