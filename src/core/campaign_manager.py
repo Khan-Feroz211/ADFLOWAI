@@ -36,18 +36,18 @@ class CampaignManager:
         """
         self._db_session = db_session
         self.ai_optimizer = AIOptimizer()
+        
+        # Optional: load pre-trained models; fallback is rule-based optimizer.
+        try:
+            self.ai_optimizer.load_models()
+        except Exception:
+            logger.info("Using rule-based AI optimization")
 
     @property
     def db(self):
         if self._db_session is None:
             self._db_session = get_db_session()
         return self._db_session
-        
-        # Try to load pre-trained models
-        try:
-            self.ai_optimizer.load_models()
-        except:
-            logger.info("Using rule-based AI optimization")
     
     def create_campaign(
         self,

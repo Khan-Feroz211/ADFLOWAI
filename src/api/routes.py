@@ -57,19 +57,43 @@ def create_campaign():
     """
     try:
         user_id = get_jwt_identity()
-        data = request.get_json()
+        data = request.get_json(silent=True) or {}
         
         # Validate required fields
-        required_fields = ['name', 'total_budget', 'platforms', 'start_date']
-        for field in required_fields:
-            if field not in data:
-                return jsonify({'error': f'Missing required field: {field}'}), 400
+        errors = []
+        if not data.get('name'):
+            errors.append('Missing required field: name')
+        if data.get('total_budget') in (None, ''):
+            errors.append('Missing required field: total_budget')
+        if not data.get('platforms'):
+            errors.append('Missing required field: platforms')
+        if not data.get('start_date'):
+            errors.append('Missing required field: start_date')
+
+        if data.get('total_budget') not in (None, ''):
+            try:
+                if float(data['total_budget']) <= 0:
+                    errors.append('total_budget must be greater than 0')
+            except (TypeError, ValueError):
+                errors.append('total_budget must be a valid number')
+        
+        if errors:
+            return jsonify({'error': 'Validation failed', 'errors': errors}), 400
         
         # Parse dates
-        start_date = datetime.fromisoformat(data['start_date'].replace('Z', '+00:00'))
+        try:
+            start_date = datetime.fromisoformat(data['start_date'].replace('Z', '+00:00'))
+        except (TypeError, ValueError):
+            return jsonify({'error': 'Invalid start_date format; expected ISO8601'}), 400
+
         end_date = None
-        if 'end_date' in data:
-            end_date = datetime.fromisoformat(data['end_date'].replace('Z', '+00:00'))
+        if data.get('end_date'):
+            try:
+                end_date = datetime.fromisoformat(data['end_date'].replace('Z', '+00:00'))
+            except (TypeError, ValueError):
+                return jsonify({'error': 'Invalid end_date format; expected ISO8601'}), 400
+            if end_date < start_date:
+                return jsonify({'error': 'end_date must be on or after start_date'}), 400
         
         # Create campaign
         manager = CampaignManager()

@@ -3,7 +3,7 @@
 
 import axios from 'axios';
 
-const BASE = '/api/v1';
+const BASE = process.env.REACT_APP_API_BASE_URL || '/api/v1';
 
 // ── Axios instance ────────────────────────────────────────────────────────────
 const api = axios.create({ baseURL: BASE });
@@ -11,6 +11,7 @@ const api = axios.create({ baseURL: BASE });
 // Attach JWT token to every request automatically
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('access_token');
+  config.headers = config.headers || {};
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
@@ -18,8 +19,34 @@ api.interceptors.request.use((config) => {
 // If token expired, redirect to login
 api.interceptors.response.use(
   (r) => r,
-  (err) => {
-    if (err.response?.status === 401) {
+  async (err) => {
+    const original = err.config || {};
+    const refreshToken = localStorage.getItem('refresh_token');
+    const status = err.response?.status;
+    const isRefreshRequest = original.url?.includes('/auth/refresh');
+
+    // Try one automatic refresh before forcing logout.
+    if (status === 401 && refreshToken && !original._retry && !isRefreshRequest) {
+      original._retry = true;
+      try {
+        const refreshRes = await axios.post(
+          `${BASE}/auth/refresh`,
+          {},
+          { headers: { Authorization: `Bearer ${refreshToken}` } }
+        );
+        const newAccess = refreshRes.data?.access_token;
+        if (newAccess) {
+          localStorage.setItem('access_token', newAccess);
+          original.headers = original.headers || {};
+          original.headers.Authorization = `Bearer ${newAccess}`;
+          return api(original);
+        }
+      } catch (_) {
+        // Fall through to logout path.
+      }
+    }
+
+    if (status === 401) {
       localStorage.clear();
       window.location.href = '/login';
     }

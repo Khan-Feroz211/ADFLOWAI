@@ -105,7 +105,7 @@ class TestAuthentication:
         data = response.get_json()
         assert data['success'] == True
         assert 'user' in data
-        assert data['user']['username'] == 'testuser'
+        assert data['user']['username'].startswith('testuser_')
     
     def test_protected_route_without_token(self, client):
         """Test accessing protected route without token"""

@@ -59,7 +59,7 @@ const s = {
 export default function NewCampaign() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState('');
+  const [errors, setErrors]   = useState([]);
   const [form, setForm] = useState({
     name:'', total_budget:'', objective:'conversions',
     start_date:'', end_date:'', description:'',
@@ -79,18 +79,29 @@ export default function NewCampaign() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    const validationErrors = [];
+    const parsedBudget = parseFloat(form.total_budget);
 
-    if (!form.name.trim())         return setError('Campaign name is required');
-    if (!form.total_budget)        return setError('Budget is required');
-    if (form.platforms.length===0) return setError('Select at least one platform');
-    if (!form.start_date)          return setError('Start date is required');
+    if (!form.name.trim()) validationErrors.push('Campaign name is required');
+    if (!form.total_budget || Number.isNaN(parsedBudget) || parsedBudget <= 0) {
+      validationErrors.push('Budget must be a number greater than 0');
+    }
+    if (form.platforms.length === 0) validationErrors.push('Select at least one platform');
+    if (!form.start_date) validationErrors.push('Start date is required');
+    if (form.end_date && form.start_date && new Date(form.end_date) < new Date(form.start_date)) {
+      validationErrors.push('End date must be on or after start date');
+    }
+
+    if (validationErrors.length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
 
     setLoading(true);
     try {
       const payload = {
         name:         form.name.trim(),
-        total_budget: parseFloat(form.total_budget),
+        total_budget: parsedBudget,
         objective:    form.objective,
         platforms:    form.platforms,
         start_date:   new Date(form.start_date).toISOString(),
@@ -105,7 +116,12 @@ export default function NewCampaign() {
       await campaignAPI.create(payload);
       navigate('/campaigns');
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to create campaign');
+      const apiErrors = err.response?.data?.errors;
+      if (Array.isArray(apiErrors) && apiErrors.length > 0) {
+        setErrors(apiErrors);
+      } else {
+        setErrors([err.response?.data?.error || 'Failed to create campaign']);
+      }
     }
     setLoading(false);
   };
@@ -139,7 +155,13 @@ export default function NewCampaign() {
         Fill in the details — AI will optimize automatically once live.
       </p>
 
-      {error && <div style={s.error}>⚠ {error}</div>}
+      {errors.length > 0 && (
+        <div style={s.error}>
+          {errors.map((msg, idx) => (
+            <div key={`${idx}-${msg}`}>⚠ {msg}</div>
+          ))}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit}>
 

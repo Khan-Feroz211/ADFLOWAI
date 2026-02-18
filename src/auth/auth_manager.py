@@ -52,8 +52,8 @@ class AuthManager:
 
         if existing:
             if existing.username == username:
-                raise AuthenticationError("Username already taken")
-            raise AuthenticationError("Email already registered")
+                raise AuthenticationError("Username already exists")
+            raise AuthenticationError("Email already exists")
 
         user = User(
             username=username,
