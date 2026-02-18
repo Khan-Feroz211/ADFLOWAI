@@ -24,6 +24,10 @@ def _get_manager():
     return AuthManager(db_session=get_db_session())
 
 
+def _validation_failed(errors):
+    return jsonify({"success": False, "error": "Validation failed", "errors": errors}), 400
+
+
 # ── Register ─────────────────────────────────────────────────────────────────
 
 @auth_bp.route("/register", methods=["POST"])
@@ -33,10 +37,27 @@ def register():
     Body: { username, email, password, full_name?, company? }
     """
     data = request.get_json(silent=True) or {}
-
+    errors = []
     for field in ("username", "email", "password"):
         if not data.get(field):
-            return jsonify({"success": False, "error": f"'{field}' is required"}), 400
+            errors.append(f"'{field}' is required")
+
+    if data.get("email") and "@" not in data.get("email", ""):
+        errors.append("Invalid email format")
+
+    password = data.get("password", "")
+    if password:
+        if len(password) < 8:
+            errors.append("Password must be at least 8 characters")
+        if not any(c.isupper() for c in password):
+            errors.append("Password must include at least one uppercase letter")
+        if not any(c.islower() for c in password):
+            errors.append("Password must include at least one lowercase letter")
+        if not any(c.isdigit() for c in password):
+            errors.append("Password must include at least one number")
+
+    if errors:
+        return _validation_failed(errors)
 
     try:
         manager = _get_manager()
@@ -69,9 +90,13 @@ def login():
     Body: { username, password }
     """
     data = request.get_json(silent=True) or {}
-
-    if not data.get("username") or not data.get("password"):
-        return jsonify({"success": False, "error": "username and password are required"}), 400
+    errors = []
+    if not data.get("username"):
+        errors.append("'username' is required")
+    if not data.get("password"):
+        errors.append("'password' is required")
+    if errors:
+        return _validation_failed(errors)
 
     try:
         manager = _get_manager()
@@ -146,9 +171,16 @@ def change_password():
     Body: { old_password, new_password }
     """
     data = request.get_json(silent=True) or {}
-
-    if not data.get("old_password") or not data.get("new_password"):
-        return jsonify({"success": False, "error": "old_password and new_password required"}), 400
+    errors = []
+    if not data.get("old_password"):
+        errors.append("'old_password' is required")
+    if not data.get("new_password"):
+        errors.append("'new_password' is required")
+    new_password = data.get("new_password", "")
+    if new_password and len(new_password) < 8:
+        errors.append("New password must be at least 8 characters")
+    if errors:
+        return _validation_failed(errors)
 
     try:
         user_id = get_jwt_identity()

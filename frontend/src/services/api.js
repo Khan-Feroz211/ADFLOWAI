@@ -24,6 +24,8 @@ api.interceptors.response.use(
     const refreshToken = localStorage.getItem('refresh_token');
     const status = err.response?.status;
     const isRefreshRequest = original.url?.includes('/auth/refresh');
+    const isAuthEntryRequest =
+      original.url?.includes('/auth/login') || original.url?.includes('/auth/register');
 
     // Try one automatic refresh before forcing logout.
     if (status === 401 && refreshToken && !original._retry && !isRefreshRequest) {
@@ -46,7 +48,7 @@ api.interceptors.response.use(
       }
     }
 
-    if (status === 401) {
+    if (status === 401 && !isAuthEntryRequest) {
       localStorage.clear();
       window.location.href = '/login';
     }
