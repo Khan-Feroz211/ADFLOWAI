@@ -5,7 +5,7 @@ import { dashboardAPI, campaignAPI } from '../services/api';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 const fmt = (n) => n >= 1000000 ? `${(n/1000000).toFixed(1)}M` : n >= 1000 ? `${(n/1000).toFixed(1)}K` : String(n||0);
-const fmtMoney = (n) => `$${(n||0).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0})}`;
+const fmtMoney = (n) => `₨${(n||0).toLocaleString('en-PK',{minimumFractionDigits:0,maximumFractionDigits:0})}`;
 const scoreColor = (s) => s >= 0.7 ? 'var(--green)' : s >= 0.4 ? 'var(--yellow)' : 'var(--red)';
 const statusColor = { active:'var(--green)', paused:'var(--yellow)', stopped:'var(--red)', draft:'var(--text3)' };
 

@@ -11,7 +11,20 @@ const platforms = [
   { id:'tiktok',     name:'TikTok Ads',   icon:'♪', color:'#ff0050' },
 ];
 
-const objectives = ['conversions','traffic','awareness','leads','engagement','sales'];
+// Localized campaign types for Pakistan
+const objectives = [
+  { key: 'conversions', en: 'Conversions', ur: 'تبدیلیاں' },
+  { key: 'traffic', en: 'Website Traffic', ur: 'ویب سائٹ ٹریفک' },
+  { key: 'awareness', en: 'Brand Awareness', ur: 'برانڈ آگاہی' },
+  { key: 'leads', en: 'Leads', ur: 'لیڈز' },
+  { key: 'engagement', en: 'Engagement', ur: 'مشغولیت' },
+  { key: 'sales', en: 'Sales', ur: 'فروخت' },
+  { key: 'product_launch', en: 'Product Launch', ur: 'پروڈکٹ لانچ' },
+  { key: 'event_promotion', en: 'Event Promotion', ur: 'ایونٹ پروموشن' },
+  { key: 'political', en: 'Political', ur: 'سیاسی' },
+  { key: 'religious', en: 'Religious', ur: 'مذہبی' },
+  { key: 'ngo', en: 'NGO/Charity', ur: 'این جی او/چیریٹی' }
+];
 
 const s = {
   page:  { padding:'32px 36px', maxWidth:760 },
@@ -167,33 +180,33 @@ export default function NewCampaign() {
 
         {/* ── Basic Info ─────────────────────────────── */}
         <div style={s.card}>
-          <div style={s.sectionTitle}>01 — Basic Info</div>
-          <Field label="Campaign Name" name="name" placeholder="e.g. Summer Sale 2026" required />
-          <Field label="Description"   name="description" placeholder="What is this campaign about?" />
+          <div style={s.sectionTitle}>01 — Basic Info / بنیادی معلومات</div>
+          <Field label="Campaign Name / مہم کا نام" name="name" placeholder="e.g. Summer Sale 2026 / مثلاً سمر سیل 2026" required />
+          <Field label="Description / تفصیل"   name="description" placeholder="What is this campaign about? / یہ مہم کس بارے میں ہے؟" />
 
           <div style={s.row}>
             <div>
-              <label style={s.label}>Objective *</label>
+              <label style={s.label}>Objective / مقصد *</label>
               <div style={s.objGrid}>
                 {objectives.map(obj => (
-                  <button key={obj} type="button" style={s.objBtn(form.objective===obj)} onClick={() => setForm(f=>({...f,objective:obj}))}>
-                    {obj}
+                  <button key={obj.key} type="button" style={s.objBtn(form.objective===obj.key)} onClick={() => setForm(f=>({...f,objective:obj.key}))}>
+                    {obj.en} <span style={{fontSize:11, color:'var(--text3)', marginLeft:4}}>{obj.ur}</span>
                   </button>
                 ))}
               </div>
             </div>
             <div>
-              <label style={s.label}>Total Budget (USD) *</label>
+              <label style={s.label}>Total Budget (PKR) *</label>
               <input
                 style={{ ...s.input, fontSize:20, fontWeight:700, fontFamily:'var(--font-head)' }}
                 type="number" min="1" step="any"
                 value={form.total_budget} onChange={set('total_budget')}
-                placeholder="5000"
+                placeholder="10000"
                 onFocus={focusBorder} onBlur={blurBorder}
               />
               {form.total_budget && (
                 <p style={{ fontSize:11, color:'var(--text3)', marginTop:6, fontFamily:'var(--font-mono)' }}>
-                  ${parseFloat(form.total_budget||0).toLocaleString()} total budget
+                  ₨{parseFloat(form.total_budget||0).toLocaleString('en-PK')} total budget
                 </p>
               )}
             </div>
@@ -226,7 +239,7 @@ export default function NewCampaign() {
                 const share = (parseFloat(form.total_budget||0)/form.platforms.length).toFixed(0);
                 return (
                   <span key={pid} style={{ fontSize:11, fontFamily:'var(--font-mono)', color:'var(--text2)', marginRight:12 }}>
-                    {pl?.name}: <span style={{ color:'var(--accent)' }}>${parseInt(share).toLocaleString()}</span>
+                    {pl?.name}: <span style={{ color:'var(--accent)' }}>₨{parseInt(share).toLocaleString('en-PK')}</span>
                   </span>
                 );
               })}
@@ -249,7 +262,7 @@ export default function NewCampaign() {
           <div style={{ marginBottom:16 }}>
             <label style={s.label}>Locations (comma separated)</label>
             <input style={s.input} value={form.target_audience.locations}
-              onChange={setAud('locations')} placeholder="US, UK, CA, AU"
+              onChange={setAud('locations')} placeholder="Pakistan, Lahore, Karachi, Islamabad"
               onFocus={focusBorder} onBlur={blurBorder} />
           </div>
           <div style={s.row}>

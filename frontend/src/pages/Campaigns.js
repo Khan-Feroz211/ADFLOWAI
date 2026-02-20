@@ -4,7 +4,7 @@ import { campaignAPI } from '../services/api';
 
 const scoreColor = (s) => s >= 0.7 ? 'var(--green)' : s >= 0.4 ? 'var(--yellow)' : 'var(--red)';
 const statusColor = { active:'var(--green)', paused:'var(--yellow)', stopped:'var(--red)', draft:'var(--text3)', completed:'var(--accent)' };
-const fmtMoney = (n) => `$${(n||0).toLocaleString()}`;
+const fmtMoney = (n) => `₨${(n||0).toLocaleString('en-PK')}`;
 
 export default function Campaigns() {
   const navigate = useNavigate();
