@@ -80,6 +80,31 @@ const s = {
   },
   error: { background:'linear-gradient(90deg, var(--red), var(--accent3))', border:'none', borderRadius:10, padding:'12px 18px', fontSize:15, color:'#fff', marginBottom:18, fontWeight:700, boxShadow:'0 2px 8px 0 var(--red)22' },
 };
+// Top-level Field component avoids remounting/focus loss when parent rerenders
+function Field({ label, name, type='text', placeholder, required, value, onChange, maxLength }) {
+  return (
+    <div style={{ marginBottom:16 }}>
+      <label style={s.label}>{label}{required && ' *'}</label>
+      <input
+        style={s.input}
+        type={type}
+        name={name}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        onFocus={(e) => e.target.style.borderColor = 'var(--accent)'}
+        onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
+        required={required}
+        maxLength={maxLength}
+      />
+      {maxLength && (
+        <div style={{ fontSize:10, color:'var(--text3)', marginTop:2, textAlign:'right' }}>
+          {(value?.length || 0)} / {maxLength} characters
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function NewCampaign() {
   const navigate = useNavigate();
@@ -159,26 +184,7 @@ export default function NewCampaign() {
   const focusBorder = (e) => e.target.style.borderColor = 'var(--accent)';
   const blurBorder  = (e) => e.target.style.borderColor = 'var(--border)';
 
-  const Field = ({ label, name, type='text', placeholder, required }) => {
-    const limit = FIELD_LIMITS[name];
-    return (
-      <div style={{ marginBottom:16 }}>
-        <label style={s.label}>{label}{required && ' *'}</label>
-        <input
-          style={s.input} type={type} value={form[name]}
-          onChange={set(name)} placeholder={placeholder}
-          onFocus={focusBorder} onBlur={blurBorder}
-          required={required}
-          maxLength={limit}
-        />
-        {limit && (
-          <div style={{ fontSize:10, color:'var(--text3)', marginTop:2, textAlign:'right' }}>
-            {form[name]?.length || 0} / {limit} characters
-          </div>
-        )}
-      </div>
-    );
-  };
+  // Use top-level Field component; pass value, onChange and maxLength
 
   return (
     <div style={s.page}>
@@ -207,8 +213,10 @@ export default function NewCampaign() {
         {/* ── Basic Info ─────────────────────────────── */}
         <div style={s.card}>
           <div style={s.sectionTitle}>01 — Basic Info / بنیادی معلومات</div>
-          <Field label="Campaign Name / مہم کا نام" name="name" placeholder="e.g. Summer Sale 2026 / مثلاً سمر سیل 2026" required />
-          <Field label="Description / تفصیل"   name="description" placeholder="What is this campaign about? / یہ مہم کس بارے میں ہے؟" />
+          <Field label="Campaign Name / مہم کا نام" name="name" placeholder="e.g. Summer Sale 2026 / مثلاً سمر سیل 2026" required
+            value={form.name} onChange={set('name')} maxLength={FIELD_LIMITS.name} />
+          <Field label="Description / تفصیل" name="description" placeholder="What is this campaign about? / یہ مہم کس بارے میں ہے؟"
+            value={form.description} onChange={set('description')} maxLength={FIELD_LIMITS.description} />
 
           <div style={s.row}>
             <div>
@@ -277,8 +285,8 @@ export default function NewCampaign() {
         <div style={s.card}>
           <div style={s.sectionTitle}>03 — Schedule</div>
           <div style={s.row}>
-            <Field label="Start Date *" name="start_date" type="date" required />
-            <Field label="End Date (optional)" name="end_date" type="date" />
+            <Field label="Start Date *" name="start_date" type="date" required value={form.start_date} onChange={set('start_date')} />
+            <Field label="End Date (optional)" name="end_date" type="date" value={form.end_date} onChange={set('end_date')} />
           </div>
         </div>
 

@@ -103,6 +103,25 @@ const s = {
   },
 };
 
+// Small presentational Input moved to top-level to avoid remounting on each render
+function Input({ label, name, type = 'text', placeholder, value, onChange, onFocus, onBlur }) {
+  return (
+    <div>
+      <label style={s.label}>{label}</label>
+      <input
+        style={s.input}
+        type={type}
+        name={name}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        onFocus={onFocus}
+        onBlur={onBlur}
+      />
+    </div>
+  );
+}
+
 export default function Login() {
   const navigate = useNavigate();
   const [tab, setTab] = useState('login');
@@ -170,20 +189,8 @@ export default function Login() {
     }
   };
 
-  const Input = ({ label, name, type = 'text', placeholder }) => (
-    <div>
-      <label style={s.label}>{label}</label>
-      <input
-        style={s.input}
-        type={type}
-        value={form[name]}
-        onChange={set(name)}
-        placeholder={placeholder}
-        onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
-        onBlur={(e) => (e.target.style.borderColor = 'var(--border)')}
-      />
-    </div>
-  );
+  const inputFocus = (e) => (e.target.style.borderColor = 'var(--accent)');
+  const inputBlur = (e) => (e.target.style.borderColor = 'var(--border)');
 
   return (
     <div style={s.page}>
@@ -213,19 +220,26 @@ export default function Login() {
 
         {tab === 'login' ? (
           <form onSubmit={handleLogin}>
-            <Input label="Username or Email" name="username" placeholder="your username" />
-            <Input label="Password" name="password" type="password" placeholder="********" />
+            <Input label="Username or Email" name="username" placeholder="your username"
+              value={form.username} onChange={set('username')} onFocus={inputFocus} onBlur={inputBlur} />
+            <Input label="Password" name="password" type="password" placeholder="********"
+              value={form.password} onChange={set('password')} onFocus={inputFocus} onBlur={inputBlur} />
             <button style={s.btn} type="submit" disabled={loading}>
               {loading ? 'Signing in...' : 'Sign In ->'}
             </button>
           </form>
         ) : (
           <form onSubmit={handleRegister}>
-            <Input label="Username" name="username" placeholder="john_doe" />
-            <Input label="Email" name="email" type="email" placeholder="john@company.com" />
-            <Input label="Password" name="password" type="password" placeholder="Min 8 chars, uppercase + number" />
-            <Input label="Full Name (optional)" name="full_name" placeholder="John Doe" />
-            <Input label="Company (optional)" name="company" placeholder="Acme Inc." />
+            <Input label="Username" name="username" placeholder="john_doe"
+              value={form.username} onChange={set('username')} onFocus={inputFocus} onBlur={inputBlur} />
+            <Input label="Email" name="email" type="email" placeholder="john@company.com"
+              value={form.email} onChange={set('email')} onFocus={inputFocus} onBlur={inputBlur} />
+            <Input label="Password" name="password" type="password" placeholder="Min 8 chars, uppercase + number"
+              value={form.password} onChange={set('password')} onFocus={inputFocus} onBlur={inputBlur} />
+            <Input label="Full Name (optional)" name="full_name" placeholder="John Doe"
+              value={form.full_name} onChange={set('full_name')} onFocus={inputFocus} onBlur={inputBlur} />
+            <Input label="Company (optional)" name="company" placeholder="Acme Inc."
+              value={form.company} onChange={set('company')} onFocus={inputFocus} onBlur={inputBlur} />
             <button style={s.btn} type="submit" disabled={loading}>
               {loading ? 'Creating account...' : 'Create Account ->'}
             </button>
