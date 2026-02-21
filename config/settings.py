@@ -19,7 +19,7 @@ class Config:
     # Database Configuration
     SQLALCHEMY_DATABASE_URI = os.getenv(
         'DATABASE_URL',
-        'postgresql://localhost:5432/adflowai'
+        'sqlite:///adflowai_dev.db'
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_POOL_SIZE = int(os.getenv('DATABASE_POOL_SIZE', 20))

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { campaignAPI } from '../services/api';
 
@@ -80,6 +80,44 @@ const s = {
   },
   error: { background:'linear-gradient(90deg, var(--red), var(--accent3))', border:'none', borderRadius:10, padding:'12px 18px', fontSize:15, color:'#fff', marginBottom:18, fontWeight:700, boxShadow:'0 2px 8px 0 var(--red)22' },
 };
+// Top-level Field component avoids remounting/focus loss when parent rerenders
+const Field = React.memo(function Field({ label, name, type='text', placeholder, required, value, onChange, maxLength }) {
+  React.useEffect(() => {
+    console.log('[Field] mount', name);
+    return () => console.log('[Field] unmount', name);
+  }, [name]);
+
+  const _onChange = (e) => {
+    console.log('[Field] change', name, e.target.value);
+    onChange && onChange(e);
+  };
+
+  const _onKey = (e) => console.log('[Field] key', name, e.key);
+
+  return (
+    <div style={{ marginBottom:16 }}>
+      <label style={s.label}>{label}{required && ' *'}</label>
+      <input
+        style={s.input}
+        type={type}
+        name={name}
+        value={value ?? ''}
+        onChange={_onChange}
+        onKeyDown={_onKey}
+        placeholder={placeholder}
+        onFocus={(e) => e.target.style.borderColor = 'var(--accent)'}
+        onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
+        required={required}
+        maxLength={maxLength}
+      />
+      {maxLength && (
+        <div style={{ fontSize:10, color:'var(--text3)', marginTop:2, textAlign:'right' }}>
+          {(value?.length || 0)} / {maxLength} characters
+        </div>
+      )}
+    </div>
+  );
+});
 
 export default function NewCampaign() {
   const navigate = useNavigate();
@@ -92,13 +130,34 @@ export default function NewCampaign() {
     target_audience:{ locations:'', age_range:'18-45', interests:'' },
   });
 
-  const set = (k) => (e) => {
-    const limit = FIELD_LIMITS[k];
-    let value = e.target.value;
-    if (limit) value = value.slice(0, limit);
-    setForm(f => ({ ...f, [k]: value }));
-  };
-  const setAud = (k) => (e) => setForm(f => ({ ...f, target_audience:{ ...f.target_audience, [k]:e.target.value } }));
+  // Stable handlers for fields
+  const setName = useCallback((e) => {
+    const v = (e.target.value || '').slice(0, FIELD_LIMITS.name);
+    setForm(f => ({ ...f, name: v }));
+  }, []);
+  const setDescription = useCallback((e) => {
+    const v = (e.target.value || '').slice(0, FIELD_LIMITS.description);
+    setForm(f => ({ ...f, description: v }));
+  }, []);
+  const setTotalBudget = useCallback((e) => {
+    const v = e.target.value;
+    setForm(f => ({ ...f, total_budget: v }));
+  }, []);
+  const setStartDate = useCallback((e) => setForm(f => ({ ...f, start_date: e.target.value })), []);
+  const setEndDate = useCallback((e) => setForm(f => ({ ...f, end_date: e.target.value })), []);
+
+  const setLocations = useCallback((e) => {
+    const v = (e.target.value || '').slice(0, FIELD_LIMITS.locations);
+    setForm(f => ({ ...f, target_audience: { ...f.target_audience, locations: v } }));
+  }, []);
+  const setAgeRange = useCallback((e) => {
+    const v = (e.target.value || '').slice(0, FIELD_LIMITS.age_range);
+    setForm(f => ({ ...f, target_audience: { ...f.target_audience, age_range: v } }));
+  }, []);
+  const setInterests = useCallback((e) => {
+    const v = (e.target.value || '').slice(0, FIELD_LIMITS.interests);
+    setForm(f => ({ ...f, target_audience: { ...f.target_audience, interests: v } }));
+  }, []);
 
   const togglePlatform = (id) => setForm(f => ({
     ...f,
@@ -159,26 +218,7 @@ export default function NewCampaign() {
   const focusBorder = (e) => e.target.style.borderColor = 'var(--accent)';
   const blurBorder  = (e) => e.target.style.borderColor = 'var(--border)';
 
-  const Field = ({ label, name, type='text', placeholder, required }) => {
-    const limit = FIELD_LIMITS[name];
-    return (
-      <div style={{ marginBottom:16 }}>
-        <label style={s.label}>{label}{required && ' *'}</label>
-        <input
-          style={s.input} type={type} value={form[name]}
-          onChange={set(name)} placeholder={placeholder}
-          onFocus={focusBorder} onBlur={blurBorder}
-          required={required}
-          maxLength={limit}
-        />
-        {limit && (
-          <div style={{ fontSize:10, color:'var(--text3)', marginTop:2, textAlign:'right' }}>
-            {form[name]?.length || 0} / {limit} characters
-          </div>
-        )}
-      </div>
-    );
-  };
+  // Use top-level Field component; pass value, onChange and maxLength
 
   return (
     <div style={s.page}>
@@ -207,8 +247,10 @@ export default function NewCampaign() {
         {/* ── Basic Info ─────────────────────────────── */}
         <div style={s.card}>
           <div style={s.sectionTitle}>01 — Basic Info / بنیادی معلومات</div>
-          <Field label="Campaign Name / مہم کا نام" name="name" placeholder="e.g. Summer Sale 2026 / مثلاً سمر سیل 2026" required />
-          <Field label="Description / تفصیل"   name="description" placeholder="What is this campaign about? / یہ مہم کس بارے میں ہے؟" />
+          <Field label="Campaign Name / مہم کا نام" name="name" placeholder="e.g. Summer Sale 2026 / مثلاً سمر سیل 2026" required
+            value={form.name} onChange={setName} maxLength={FIELD_LIMITS.name} />
+          <Field label="Description / تفصیل" name="description" placeholder="What is this campaign about? / یہ مہم کس بارے میں ہے؟"
+            value={form.description} onChange={setDescription} maxLength={FIELD_LIMITS.description} />
 
           <div style={s.row}>
             <div>
@@ -226,7 +268,7 @@ export default function NewCampaign() {
               <input
                 style={{ ...s.input, fontSize:20, fontWeight:700, fontFamily:'var(--font-head)' }}
                 type="number" min="1" step="any"
-                value={form.total_budget} onChange={set('total_budget')}
+                value={form.total_budget ?? ''} onChange={setTotalBudget}
                 placeholder="10000"
                 onFocus={focusBorder} onBlur={blurBorder}
               />
@@ -277,8 +319,8 @@ export default function NewCampaign() {
         <div style={s.card}>
           <div style={s.sectionTitle}>03 — Schedule</div>
           <div style={s.row}>
-            <Field label="Start Date *" name="start_date" type="date" required />
-            <Field label="End Date (optional)" name="end_date" type="date" />
+            <Field label="Start Date *" name="start_date" type="date" required value={form.start_date} onChange={setStartDate} />
+            <Field label="End Date (optional)" name="end_date" type="date" value={form.end_date} onChange={setEndDate} />
           </div>
         </div>
 
@@ -288,13 +330,7 @@ export default function NewCampaign() {
           <div style={{ marginBottom:16 }}>
             <label style={s.label}>Locations (comma separated)</label>
             <input style={s.input} value={form.target_audience.locations}
-              onChange={e => {
-                let v = e.target.value.slice(0, FIELD_LIMITS.locations);
-                setForm(f => ({
-                  ...f,
-                  target_audience: { ...f.target_audience, locations: v }
-                }));
-              }} placeholder="Pakistan, Lahore, Karachi, Islamabad"
+              onChange={setLocations} placeholder="Pakistan, Lahore, Karachi, Islamabad"
               onFocus={focusBorder} onBlur={blurBorder} maxLength={FIELD_LIMITS.locations} />
             <div style={{ fontSize:10, color:'var(--text3)', marginTop:2, textAlign:'right' }}>
               {form.target_audience.locations.length} / {FIELD_LIMITS.locations} characters
@@ -304,13 +340,7 @@ export default function NewCampaign() {
             <div>
               <label style={s.label}>Age Range</label>
               <input style={s.input} value={form.target_audience.age_range}
-                onChange={e => {
-                  let v = e.target.value.slice(0, FIELD_LIMITS.age_range);
-                  setForm(f => ({
-                    ...f,
-                    target_audience: { ...f.target_audience, age_range: v }
-                  }));
-                }} placeholder="18-45"
+                onChange={setAgeRange} placeholder="18-45"
                 onFocus={focusBorder} onBlur={blurBorder} maxLength={FIELD_LIMITS.age_range} />
               <div style={{ fontSize:10, color:'var(--text3)', marginTop:2, textAlign:'right' }}>
                 {form.target_audience.age_range.length} / {FIELD_LIMITS.age_range} characters
@@ -319,13 +349,7 @@ export default function NewCampaign() {
             <div>
               <label style={s.label}>Interests (comma separated)</label>
               <input style={s.input} value={form.target_audience.interests}
-                onChange={e => {
-                  let v = e.target.value.slice(0, FIELD_LIMITS.interests);
-                  setForm(f => ({
-                    ...f,
-                    target_audience: { ...f.target_audience, interests: v }
-                  }));
-                }} placeholder="technology, fashion, sports"
+                onChange={setInterests} placeholder="technology, fashion, sports"
                 onFocus={focusBorder} onBlur={blurBorder} maxLength={FIELD_LIMITS.interests} />
               <div style={{ fontSize:10, color:'var(--text3)', marginTop:2, textAlign:'right' }}>
                 {form.target_audience.interests.length} / {FIELD_LIMITS.interests} characters

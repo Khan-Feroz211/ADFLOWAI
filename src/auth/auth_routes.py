@@ -21,7 +21,8 @@ auth_bp = Blueprint("auth", __name__, url_prefix="/api/v1/auth")
 
 def _get_manager():
     """Return an AuthManager with a fresh db session."""
-    return AuthManager(db_session=get_db_session())
+    session = get_db_session()
+    return AuthManager(db_session=session)
 
 
 def _validation_failed(errors):
