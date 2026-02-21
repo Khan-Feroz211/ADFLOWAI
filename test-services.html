@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ADFLOWAI - Service Check</title>
+    <style>
+        body { font-family: Arial; padding: 40px; background: #0a0a0f; color: #fff; }
+        .service { margin: 20px 0; padding: 20px; background: #1a1a2e; border-radius: 8px; }
+        .status { display: inline-block; padding: 5px 15px; border-radius: 4px; margin-left: 10px; }
+        .ok { background: #00ff88; color: #000; }
+        .error { background: #ff0055; color: #fff; }
+        button { padding: 10px 20px; background: #00ff88; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🚀 ADFLOWAI Service Check</h1>
+    
+    <div class="service">
+        <h3>Backend API <span id="api-status" class="status">Checking...</span></h3>
+        <p>URL: <a href="http://localhost:5000/health" target="_blank">http://localhost:5000/health</a></p>
+        <button onclick="testAPI()">Test API</button>
+        <pre id="api-result"></pre>
+    </div>
+
+    <div class="service">
+        <h3>Frontend <span id="frontend-status" class="status">Checking...</span></h3>
+        <p>URL: <a href="http://localhost:3000" target="_blank">http://localhost:3000</a></p>
+        <button onclick="window.open('http://localhost:3000', '_blank')">Open Frontend</button>
+    </div>
+
+    <div class="service">
+        <h3>Test Registration</h3>
+        <button onclick="testRegister()">Register Test User</button>
+        <pre id="register-result"></pre>
+    </div>
+
+    <script>
+        async function testAPI() {
+            try {
+                const res = await fetch('http://localhost:5000/health');
+                const data = await res.json();
+                document.getElementById('api-status').textContent = 'OK';
+                document.getElementById('api-status').className = 'status ok';
+                document.getElementById('api-result').textContent = JSON.stringify(data, null, 2);
+            } catch (e) {
+                document.getElementById('api-status').textContent = 'ERROR';
+                document.getElementById('api-status').className = 'status error';
+                document.getElementById('api-result').textContent = e.message;
+            }
+        }
+
+        async function testRegister() {
+            try {
+                const res = await fetch('http://localhost:5000/api/v1/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: 'webtest' + Date.now(),
+                        email: 'test' + Date.now() + '@test.com',
+                        password: 'Test1234',
+                        full_name: 'Web Test User'
+                    })
+                });
+                const data = await res.json();
+                document.getElementById('register-result').textContent = JSON.stringify(data, null, 2);
+            } catch (e) {
+                document.getElementById('register-result').textContent = 'Error: ' + e.message;
+            }
+        }
+
+        // Auto-test on load
+        window.onload = () => {
+            testAPI();
+        };
+    </script>
+</body>
+</html>
