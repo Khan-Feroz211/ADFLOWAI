@@ -15,19 +15,34 @@ const makeSparkline = (base, count=12) =>
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 function StatCard({ label, value, sub, color='var(--accent)', spark }) {
+  // Pick a gradient for each card for vibrancy
+  const gradients = [
+    'linear-gradient(135deg, var(--accent2) 0%, var(--accent) 100%)',
+    'linear-gradient(135deg, var(--accent3) 0%, var(--accent4) 100%)',
+    'linear-gradient(135deg, var(--accent5) 0%, var(--accent6) 100%)',
+    'linear-gradient(135deg, var(--pink) 0%, var(--accent2) 100%)',
+    'linear-gradient(135deg, var(--lime) 0%, var(--teal) 100%)',
+  ];
+  const cardBg = gradients[Math.floor(Math.random()*gradients.length)];
   return (
     <div style={{
-      background:'var(--bg2)', border:'1px solid var(--border)', borderRadius:14,
-      padding:'20px 22px', display:'flex', flexDirection:'column', gap:4,
+      background: cardBg,
+      border: 'none',
+      borderRadius: 18,
+      padding: '22px 26px',
+      display: 'flex', flexDirection: 'column', gap: 6,
+      boxShadow: '0 4px 24px 0 rgba(0,0,0,0.12)',
+      color: '#fff',
+      minWidth: 220,
     }}>
-      <span style={{ fontSize:11, fontFamily:'var(--font-mono)', color:'var(--text3)', letterSpacing:1.5, textTransform:'uppercase' }}>{label}</span>
-      <span style={{ fontSize:26, fontWeight:800, fontFamily:'var(--font-head)', color, lineHeight:1.1, marginTop:4 }}>{value}</span>
-      {sub && <span style={{ fontSize:12, color:'var(--text3)' }}>{sub}</span>}
+      <span style={{ fontSize:12, fontFamily:'var(--font-mono)', color:'#fff', letterSpacing:1.5, textTransform:'uppercase', opacity:0.85 }}>{label}</span>
+      <span style={{ fontSize:30, fontWeight:900, fontFamily:'var(--font-head)', color:'#fff', lineHeight:1.1, marginTop:4 }}>{value}</span>
+      {sub && <span style={{ fontSize:13, color:'#fff', opacity:0.8 }}>{sub}</span>}
       {spark && (
-        <div style={{ marginTop:8, height:36 }}>
+        <div style={{ marginTop:10, height:38 }}>
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={spark}>
-              <Area type="monotone" dataKey="v" stroke={color} strokeWidth={1.5} fill={`${color}18`} dot={false} />
+              <Area type="monotone" dataKey="v" stroke="#fff" strokeWidth={2} fill="#fff2" dot={false} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -39,23 +54,19 @@ function StatCard({ label, value, sub, color='var(--accent)', spark }) {
 function CampaignRow({ c, onOptimize, optimizing }) {
   const score = c.performance_score || 0.5;
   return (
-    <tr style={{ borderBottom:'1px solid var(--border)' }}>
-      <td style={{ padding:'14px 16px', fontSize:13, fontWeight:600, color:'var(--text)' }}>{c.name}</td>
-      <td style={{ padding:'14px 8px' }}>
-        <span style={{
-          fontSize:11, fontFamily:'var(--font-mono)', padding:'3px 8px', borderRadius:20,
-          background:`${statusColor[c.status]||'var(--text3)'}18`,
-          color: statusColor[c.status] || 'var(--text3)',
-        }}>{c.status}</span>
+    <tr style={{ borderBottom:'2px solid var(--accent2)', background: 'linear-gradient(90deg, #181e2a 60%, #232e47 100%)' }}>
+      <td style={{ padding:'16px 18px', fontSize:15, fontWeight:700, color:'var(--accent3)', letterSpacing:0.2 }}>{c.name}</td>
+      <td style={{ padding:'16px 10px' }}>
+        <span className="vivid-status">{c.status}</span>
       </td>
-      <td style={{ padding:'14px 8px', fontSize:13, color:'var(--text)', fontFamily:'var(--font-mono)' }}>{fmtMoney(c.total_budget)}</td>
-      <td style={{ padding:'14px 8px', fontSize:13, color:'var(--text2)', fontFamily:'var(--font-mono)' }}>{fmtMoney(c.spent_budget)}</td>
-      <td style={{ padding:'14px 8px' }}>
-        <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-          <div style={{ flex:1, height:4, background:'var(--bg3)', borderRadius:2 }}>
-            <div style={{ width:`${score*100}%`, height:'100%', borderRadius:2, background:scoreColor(score) }} />
+      <td style={{ padding:'16px 10px', fontSize:14, color:'var(--accent4)', fontFamily:'var(--font-mono)', fontWeight:700 }}>{fmtMoney(c.total_budget)}</td>
+      <td style={{ padding:'16px 10px', fontSize:14, color:'var(--accent5)', fontFamily:'var(--font-mono)', fontWeight:700 }}>{fmtMoney(c.spent_budget)}</td>
+      <td style={{ padding:'16px 10px' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+          <div style={{ flex:1, height:6, background:'var(--bg3)', borderRadius:3 }}>
+            <div style={{ width:`${score*100}%`, height:'100%', borderRadius:3, background:scoreColor(score), boxShadow:'0 2px 8px 0 var(--accent2)33' }} />
           </div>
-          <span style={{ fontSize:11, fontFamily:'var(--font-mono)', color:scoreColor(score), minWidth:30 }}>{(score*100).toFixed(0)}%</span>
+          <span style={{ fontSize:13, fontFamily:'var(--font-mono)', color:scoreColor(score), minWidth:32 }}>{(score*100).toFixed(0)}%</span>
         </div>
       </td>
       <td style={{ padding:'14px 8px' }}>
