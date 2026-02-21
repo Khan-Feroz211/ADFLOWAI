@@ -148,9 +148,9 @@ services:
       CHOKIDAR_USEPOLLING: "true"
       WDS_SOCKET_PORT: "3000"
       PORT: "3000"
-      # When running in docker-compose the frontend should call the API service
-      # by its service name. Use 'http://api:5000' for container-to-container calls.
-      REACT_APP_API_URL: "http://api:5000"
+      # When running in docker-compose with browser on host, keep API as localhost
+      # so the browser can reach the API mapped on the host port (5000).
+      REACT_APP_API_URL: "http://localhost:5000"
     depends_on:
       - api
     networks:
