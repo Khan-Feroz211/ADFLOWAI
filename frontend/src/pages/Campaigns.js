@@ -153,11 +153,11 @@ export default function Campaigns() {
 
                 {/* Metrics row */}
                 <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:10 }}>
-                  {(
+                  {[
                     { label:'Impressions', val:(c.metrics?.impressions||c.impressions||0).toLocaleString() },
                     { label:'Clicks',      val:(c.metrics?.clicks||c.clicks||0).toLocaleString() },
                     { label:'Conversions', val:(c.metrics?.conversions||c.conversions||0).toLocaleString() },
-                  ).map(m => (
+                  ].map(m => (
                     <div key={m.label} style={{ fontSize:14, color:'#fff', fontFamily:'var(--font-mono)', fontWeight:700 }}>
                       <span style={{ color:'var(--accent6)' }}>{m.val}</span> {m.label}
                     </div>
