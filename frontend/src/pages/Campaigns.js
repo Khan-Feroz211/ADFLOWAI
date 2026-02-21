@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { campaignAPI } from '../services/api';
 
-  const scoreColor = (s) => s >= 0.7 ? 'var(--green)' : s >= 0.4 ? 'var(--yellow)' : 'var(--red)';
-  const statusColor = { active:'var(--green)', paused:'var(--yellow)', stopped:'var(--red)', draft:'var(--accent4)', completed:'var(--accent)' };
-  const fmtMoney = (n) => `₨${(n||0).toLocaleString('en-PK')}`;
+const scoreColor = (s) => s >= 0.7 ? 'var(--green)' : s >= 0.4 ? 'var(--yellow)' : 'var(--red)';
+const statusColor = { active:'var(--green)', paused:'var(--yellow)', stopped:'var(--red)', draft:'var(--accent4)', completed:'var(--accent)' };
+const fmtMoney = (n) => `₨${(n||0).toLocaleString('en-PK')}`;
+const filters = ['all', 'active', 'paused', 'stopped', 'draft', 'completed'];
 
 export default function Campaigns() {
   const navigate = useNavigate();
@@ -36,9 +37,24 @@ export default function Campaigns() {
     } catch { showToast('⚠ Optimization failed', 'error'); }
     setOptimizing(null);
   };
+
+  const deleteCampaign = async (id) => {
+    setDeleting(id);
+    try {
+      await campaignAPI.delete(id);
+      showToast('✓ Campaign deleted', 'success');
+      load();
+    } catch { showToast('⚠ Delete failed', 'error'); }
+    setDeleting(null);
+  };
+
+  const showToast = (msg, type) => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
   return (
     <div style={{ padding:'32px 36px', maxWidth:1200 }}>
-
       {/* Toast */}
       {toast && (
         <div style={{
@@ -50,10 +66,6 @@ export default function Campaigns() {
       )}
 
       <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:28 }}>
-        <div>
-          <h1 style={{ fontFamily:'var(--font-head)', fontSize:32, fontWeight:900, letterSpacing:'-1px', color:'var(--accent2)', textShadow:'0 2px 12px var(--accent3)33' }}>Campaigns</h1>
-          <p style={{ color:'var(--accent4)', fontSize:15, marginTop:6, fontWeight:700 }}>{campaigns.length} campaign{campaigns.length!==1?'s':''} found</p>
-        </div>
         <button
           onClick={() => navigate('/campaigns/new')}
           className="vivid-btn"
@@ -141,11 +153,11 @@ export default function Campaigns() {
 
                 {/* Metrics row */}
                 <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:10 }}>
-                  {[
+                  {(
                     { label:'Impressions', val:(c.metrics?.impressions||c.impressions||0).toLocaleString() },
                     { label:'Clicks',      val:(c.metrics?.clicks||c.clicks||0).toLocaleString() },
                     { label:'Conversions', val:(c.metrics?.conversions||c.conversions||0).toLocaleString() },
-                  ].map(m => (
+                  ).map(m => (
                     <div key={m.label} style={{ fontSize:14, color:'#fff', fontFamily:'var(--font-mono)', fontWeight:700 }}>
                       <span style={{ color:'var(--accent6)' }}>{m.val}</span> {m.label}
                     </div>
@@ -175,37 +187,6 @@ export default function Campaigns() {
                       flex:1, padding:'10px', borderRadius:10, border:'none',
                       background:'linear-gradient(90deg, var(--red), var(--accent3))', color:'#fff', fontSize:14, fontWeight:700, boxShadow:'0 2px 8px 0 var(--red)22', transition:'all .2s',
                     }}
-                  >
-                    {deleting===c.id ? '...' : '✕'}
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-                    onClick={() => optimize(c.id)}
-                    disabled={optimizing===c.id}
-                    style={{
-                      flex:1, padding:'8px', borderRadius:8, border:'1px solid var(--accent)',
-                      background:'rgba(0,212,255,0.08)', color:'var(--accent)',
-                      fontSize:12, fontFamily:'var(--font-mono)', fontWeight:600,
-                      transition:'all .2s',
-                    }}
-                  >
-                    {optimizing===c.id ? '...' : '⚡ OPTIMIZE'}
-                  </button>
-                  <button
-                    onClick={() => deleteCampaign(c.id)}
-                    disabled={deleting===c.id}
-                    style={{
-                      padding:'8px 12px', borderRadius:8, border:'1px solid var(--border)',
-                      background:'transparent', color:'var(--text3)', fontSize:12, transition:'all .2s',
-                    }}
-                    onMouseEnter={e=>{ e.target.style.borderColor='var(--red)'; e.target.style.color='var(--red)'; }}
-                    onMouseLeave={e=>{ e.target.style.borderColor='var(--border)'; e.target.style.color='var(--text3)'; }}
                   >
                     {deleting===c.id ? '...' : '✕'}
                   </button>
